@@ -1,4 +1,5 @@
-streamlit
-matplotlib
-pandas
+streamlit~=1.45.1
+matplotlib~=3.10.3
+pandas~=2.3.0
 fastf1>=3.0.3
+plotly~=6.1.2

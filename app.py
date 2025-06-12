@@ -4,11 +4,48 @@ import io
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="F1 Telemetry Analyzer", layout="wide")
+
+# Animated header with entrance effect
 st.markdown("""
-    <h1 style='display: flex; align-items: center;'>
-        <img src='https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg' width='60' style='margin-right: 10px;'>
-        Formula 1 Telemetry & Race Analysis
-    </h1>
+    <style>
+        @keyframes fadeInMove {
+            0% {opacity: 0; transform: translateY(-20px);}
+            100% {opacity: 1; transform: translateY(0);}
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            background-color: #20232A;
+            padding: 10px;
+            border-radius: 10px;
+            animation: fadeInMove 1s ease-in-out;
+        }
+        .header-title {
+            margin: 0;
+            color: #61dafb;
+        }
+        .header-subtitle {
+            margin: 0;
+            color: #FFFFFF;
+            font-size: 16px;
+        }
+        .logo {
+            animation: pulse 2s infinite;
+            margin-right: 15px;
+        }
+        @keyframes pulse {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.1);}
+            100% {transform: scale(1);}
+        }
+    </style>
+    <div class='header-container'>
+        <img src='https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg' width='60' class='logo'>
+        <div>
+            <h1 class='header-title'>Formula 1 Telemetry & Race Analysis</h1>
+            <p class='header-subtitle'>Visualize. Compare. Optimize. Elevate your race insights.</p>
+        </div>
+    </div>
 """, unsafe_allow_html=True)
 
 # Load FastF1 and setup cache
@@ -49,18 +86,19 @@ except Exception as e:
 selected_gp = st.sidebar.selectbox("Select Grand Prix", gp_list, key='gp_selector')
 session_type = st.sidebar.selectbox("Session", ['FP1', 'FP2', 'FP3', 'Q', 'R'], key='session_selector')
 
-@st.cache_data(show_spinner=True)
+@st.cache_data(show_spinner="Loading session data...")
 def load_session_data(year, gp, session_type):
     session = fastf1.get_session(year, gp, session_type)
     session.load()
     return session
 
-try:
-    session = load_session_data(year, selected_gp, session_type)
-    drivers = session.laps['Driver'].unique()
-except Exception as e:
-    st.error(f"Error loading session: {e}")
-    st.stop()
+with st.spinner(f"🚥 Warming up the tires and loading {selected_gp} {session_type} data..."):
+    try:
+        session = load_session_data(year, selected_gp, session_type)
+        drivers = session.laps['Driver'].unique()
+    except Exception as e:
+        st.error(f"Error loading session: {e}")
+        st.stop()
 
 # Driver selection
 driver1 = st.selectbox("Select Driver 1", drivers, key='driver1_selector')
